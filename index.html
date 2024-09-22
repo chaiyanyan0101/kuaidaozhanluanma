@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>宜宾市新能源汽车预测与安全管理系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-image: url('顶部.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100vh;
+            color: white;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #333;
+        }
+
+        nav a {
+            padding: 14px 20px;
+            display: block;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        nav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .section {
+            background-color: white;
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            color: #87CEFA; /* 浅蓝色 */
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .button {
+            background-color: #87CEFA; /* 浅蓝色按钮 */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #00BFFF; /* 按钮变深的浅蓝色 */
+        }
+
+        .output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e7f3fe;
+            border-left: 6px solid #87CEFA; /* 浅蓝色边框 */
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        canvas {
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>宜宾市新能源汽车预测与安全管理系统</h1>
+    </header>
+
+    <nav>
+        <a href="#prediction">预测</a>
+        <a href="#route">路线规划</a>
+        <a href="#safety">安全管理</a>
+    </nav>
+
+    <div class="container">
+        <!-- 预测部分 -->
+        <section id="prediction" class="section">
+            <h2>人口与新能源汽车数量预测</h2>
+            <div class="input-group">
+                <label for="year">输入未来年份 (如2025):</label>
+                <input type="number" id="year" placeholder="年份">
+            </div>
+            <div class="input-group">
+                <label for="populationGrowth">预计人口增长率 (%):</label>
+                <input type="number" id="populationGrowth" placeholder="人口增长率">
+            </div>
+            <div class="input-group">
+                <label for="carGrowth">新能源汽车年增长率 (%):</label>
+                <input type="number" id="carGrowth" placeholder="新能源汽车增长率">
+            </div>
+            <button class="button" onclick="predictPopulation()">预测结果</button>
+            <div class="output" id="predictionResult"></div>
+
+            <!-- 数据可视化部分 -->
+            <canvas id="predictionChart"></canvas>
+        </section>
+
+        <!-- 路线规划部分 -->
+        <section id="route" class="section">
+            <h2>回收站点路线规划</h2>
+            <div class="input-group">
+                <label for="locations">请输入多个站点位置（逗号分隔的经纬度，如 "30.6586,104.0647"）:</label>
+                <input type="text" id="locations" placeholder="输入站点位置">
+            </div>
+            <button class="button" onclick="planRoute()">规划路线</button>
+            <div class="output" id="routeResult"></div>
+
+            <!-- 地图展示部分 -->
+            <div id="map"></div>
+        </section>
+
+        <!-- 安全管理部分 -->
+        <section id="safety" class="section">
+            <h2>站点安全与管理</h2>
+            <div class="input-group">
+                <label for="linkSafety">站点之间的安全链接:</label>
+                <select id="linkSafety">
+                    <option value="高安全">高安全</option>
+                    <option value="中安全">中安全</option>
+                    <option value="低安全">低安全</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="stationSize">站点大小 (平方米):</label>
+                <input type="number" id="stationSize" placeholder="输入站点大小">
+            </div>
+            <div class="input-group">
+                <label for="monitoringSystem">监控系统等级:</label>
+                <select id="monitoringSystem">
+                    <option value="高清监控">高清监控</option>
+                    <option value="普通监控">普通监控</option>
+                    <option value="无监控">无监控</option>
+                </select>
+            </div>
+            <button class="button" onclick="manageSafety()">管理安全</button>
+            <div class="output" id="safetyResult"></div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // 预测功能的实现
+        function predictPopulation() {
+            const year = document.getElementById('year').value;
+            const populationGrowth = document.getElementById('populationGrowth').value;
+            const carGrowth = document.getElementById('carGrowth').value;
+            let result = '';
+
+            if (year && populationGrowth && carGrowth) {
+                result = `预测结果: 在${year}年，人口增长率为${populationGrowth}% ，新能源汽车年增长率为${carGrowth}%。`;
+                drawChart(year, populationGrowth, carGrowth);  // 绘制图表
+            } else {
+                result = "请输入完整的信息！";
+            }
+
+            document.getElementById('predictionResult').innerHTML = result;
+        }
+
+        // 绘制预测数据的图表
+        function drawChart(year, populationGrowth, carGrowth) {
+            const ctx = document.getElementById('predictionChart').getContext('2d');
+            const data = {
+                labels: ['人口增长率', '新能源汽车增长率'],
+                datasets: [{
+                    label: '预测数据',
+                    data: [populationGrowth, carGrowth],
+                    backgroundColor: ['#87CEFA', '#2196F3'] // 浅蓝色
+                }]
+            };
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                    }
+                }
+            });
+        }
+
+        // 路线规划功能的实现
+        let map, directionsService, directionsRenderer, recycleCarMarker;
+
+        function initMap() {
+            // 初始化地图
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 30.6586, lng: 104.0647 }, // 示例中心点：成都市中心
+                zoom: 12
+            });
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
+        }
+
+        function planRoute() {
+            const locationsInput = document.getElementById('locations').value;
+            const locations = locationsInput.split(',').map((loc) => {
+                const [lat, lng] = loc.trim().split(' ').map(parseFloat);
+                return { lat, lng };
+            });
+
+            if (locations.length > 0) {
+                // 随机生成电池回收车的位置
+                const recycleCarLocation = {
+                    lat: locations[0].lat + (Math.random() - 0.5) * 0.02,
+                    lng: locations[0].lng + (Math.random() - 0.5) * 0.02,
+                };
+
+                // 设置电池车位置标记
+                if (recycleCarMarker) {
+                    recycleCarMarker.setMap(null);
+                }
+                recycleCarMarker = new google.maps.Marker({
+                    position: recycleCarLocation,
+                    map: map,
+                    title: "电池回收车",
+                    icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                });
+
+                // 设置站点位置标记
+                locations.forEach((location, index) => {
+                    new google.maps.Marker({
+                        position: location,
+                        map: map,
+                        title: `站点 ${index + 1}`
+                    });
+                });
+
+                // 计算最优路线
+                calculateOptimalRoute(recycleCarLocation, locations);
+            } else {
+                document.getElementById('routeResult').innerHTML = "请输入有效的站点位置！";
+            }
+        }
+
+        function calculateOptimalRoute(recycleCarLocation, locations) {
+            const waypoints = locations.map(location => ({
+                location: new google.maps.LatLng(location.lat, location.lng),
+                stopover: true
+            }));
+
+            const request = {
+                origin: recycleCarLocation,
+                destination: waypoints.pop().location, // 最后一个站点为终点
+                waypoints: waypoints, // 中途停靠点
+                travelMode: 'DRIVING',
+                optimizeWaypoints: true
+            };
+
+            directionsService.route(request, function (response, status) {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(response);
+                    const route = response.routes[0];
+                    document.getElementById('routeResult').innerHTML =
+                        `路径规划成功，共有 ${route.legs.length} 段路径。`;
+                } else {
+                    document.getElementById('routeResult').innerHTML =
+                        `路径规划失败：${status}`;
+                }
+            });
+        }
+
+        // 安全管理功能的实现
+        function manageSafety() {
+            const linkSafety = document.getElementById('linkSafety').value;
+            const stationSize = document.getElementById('stationSize').value;
+            const monitoringSystem = document.getElementById('monitoringSystem').value;
+            let result = '';
+
+            if (linkSafety && stationSize && monitoringSystem) {
+                result = `安全管理结果: 站点的安全链接等级为${linkSafety}，站点大小为${stationSize}平方米，监控系统为${monitoringSystem}。`;
+            } else {
+                result = "请输入完整的信息！";
+            }
+
+            document.getElementById('safetyResult').innerHTML = result;
+        }
+    </script>
+
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACbu8_7vKjTkFLblRlVdJF-wEntQNFjvQ&callback=initMap"></script>
+</body>
+
+</html>
+
